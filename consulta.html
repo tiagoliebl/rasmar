@@ -1,0 +1,321 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+<meta charset="UTF-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover" />
+<title>Rasmar V2 — Consulta</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Manrope:wght@500;600;700;800&family=Inter:wght@400;500;600&display=swap" rel="stylesheet">
+<style>
+  :root{
+    --bg:#eef1ee; --surface-1:#e9ede9; --surface-2:#ffffff;
+    --border:#dde3dc; --border-strong:#c3ccc2; --border-accent:#cfa863;
+    --text-primary:#161c19; --text-secondary:#535e58; --text-muted:#8b968f;
+    --text-success:#0e6b53; --text-danger:#c22f24; --text-accent:#8a6a1f;
+    --brand:#12695a; --brand2:#1c8a6d; --brand-dark:#0a4a3e; --brand-soft:#e3f2ec; --on-brand:#fff;
+    --radius:12px; --radius-lg:20px; --radius-xl:26px;
+    --shadow-sm:0 1px 3px rgba(15,30,25,0.08);
+    --shadow-md:0 8px 24px rgba(15,30,25,0.12);
+    --shadow-lg:0 18px 44px rgba(15,30,25,0.18);
+    --font-display:'Manrope','Inter',-apple-system,BlinkMacSystemFont,"Segoe UI",Roboto,sans-serif;
+    --font-body:'Inter',-apple-system,BlinkMacSystemFont,"Segoe UI",Roboto,sans-serif;
+  }
+  *{box-sizing:border-box;}
+  body{
+    background:
+      radial-gradient(circle at 8% -5%, rgba(18,105,90,0.14), transparent 42%),
+      radial-gradient(circle at 100% 0%, rgba(207,168,99,0.10), transparent 38%),
+      var(--bg);
+    color:var(--text-primary); margin:0; padding:20px;
+    font-family:var(--font-body);
+    -webkit-font-smoothing:antialiased; line-height:1.45;
+  }
+  .wrap{max-width:720px; margin:0 auto;}
+  .cabecalho{
+    display:flex; align-items:center; justify-content:space-between; gap:14px; flex-wrap:wrap;
+    padding:18px 24px; margin:-20px -20px 22px;
+    background:linear-gradient(120deg, var(--brand-dark) 0%, var(--brand) 55%, var(--brand2) 100%);
+    border-radius:0 0 var(--radius-xl) var(--radius-xl); box-shadow:var(--shadow-lg);
+  }
+  .cabecalho h1{ color:#fff; font-family:var(--font-display); font-size:18px; margin:0; font-weight:800; }
+  .cabecalho .sub{ color:rgba(255,255,255,0.75); font-size:11px; text-transform:uppercase; letter-spacing:0.03em; font-weight:600; margin:2px 0 0; }
+  .versao{font-size:11px; background:rgba(255,255,255,0.2); color:#fff; border-radius:6px; padding:2px 7px; margin-left:6px; font-weight:800;}
+  .secao{background:var(--surface-2); border:1px solid var(--border); border-radius:var(--radius-lg); padding:18px; margin-bottom:16px; box-shadow:var(--shadow-sm);}
+  .secao h2{font-family:var(--font-display); font-size:15px; margin:0 0 12px; font-weight:700;}
+  .tagMuted{color:var(--text-muted); font-size:13px;}
+  .linhaEvento{display:flex; gap:10px; padding:8px 0; border-bottom:1px solid var(--border); font-size:13px;}
+  .linhaEvento:last-child{border-bottom:none;}
+  .linhaEvento .quando{color:var(--text-muted); min-width:120px; font-size:12px;}
+  .linhaEvento .tipo{font-weight:600;}
+  .badge{display:inline-block; font-size:11px; font-weight:700; padding:2px 10px; border-radius:999px; background:var(--brand-soft); color:var(--brand-dark);}
+  .badge.pronto{background:#dcf3e7; color:var(--text-success);}
+  .badge.andamento{background:#fdf1da; color:var(--text-accent);}
+  footer{margin-top:24px; padding:14px 0 8px; text-align:center; border-top:1px solid var(--border); font-size:11px; color:var(--text-muted);}
+
+  /* ---- cartão de status grande, é a primeira coisa que a pessoa vê ---- */
+  .cartaoStatus{ text-align:center; padding:26px 18px; }
+  .cartaoStatus .rotuloTipo{ font-size:11px; text-transform:uppercase; letter-spacing:0.05em; color:var(--text-muted); font-weight:700; margin:0 0 4px; }
+  .cartaoStatus .tituloItem{ font-family:var(--font-display); font-size:22px; font-weight:800; margin:0 0 6px; }
+  .cartaoStatus .subInfo{ font-size:13px; color:var(--text-secondary); margin:0 0 16px; }
+  .statusGrande{ display:inline-flex; align-items:center; gap:8px; font-size:15px; font-weight:800; padding:10px 22px; border-radius:999px; }
+  .statusGrande.pronto{ background:#dcf3e7; color:var(--text-success); }
+  .statusGrande.andamento{ background:#fdf1da; color:var(--text-accent); }
+
+  /* ---- barra de progresso visual (stepper) ---- */
+  .stepperWrap{ overflow-x:auto; padding:4px 2px 8px; }
+  .stepper{ display:flex; align-items:flex-start; min-width:min-content; }
+  .step{ display:flex; flex-direction:column; align-items:center; flex-shrink:0; width:82px; text-align:center; }
+  .step .bolha{ width:34px; height:34px; border-radius:999px; display:flex; align-items:center; justify-content:center; font-size:15px; font-weight:800; background:var(--surface-1); color:var(--text-muted); border:2px solid var(--border-strong); }
+  .step.feito .bolha{ background:var(--brand); color:#fff; border-color:var(--brand); }
+  .step.atual .bolha{ background:var(--brand2); color:#fff; border-color:var(--brand2); box-shadow:0 0 0 5px rgba(28,138,109,0.22); }
+  .step .rotulo{ font-size:10.5px; margin-top:6px; color:var(--text-secondary); line-height:1.25; }
+  .step.feito .rotulo, .step.atual .rotulo{ color:var(--text-primary); font-weight:600; }
+  .linhaStep{ flex:1; height:2px; background:var(--border-strong); margin-top:16px; min-width:14px; }
+  .linhaStep.feito{ background:var(--brand); }
+
+  /* ---- números rápidos ---- */
+  .statsRapidas{ display:flex; gap:10px; flex-wrap:wrap; }
+  .statCard{ flex:1; min-width:130px; background:var(--surface-1); border-radius:var(--radius); padding:12px 14px; text-align:center; }
+  .statCard .numero{ font-family:var(--font-display); font-size:18px; font-weight:800; color:var(--brand-dark); }
+  .statCard .rotulo{ font-size:10.5px; color:var(--text-muted); margin-top:2px; }
+
+  details.secao > summary{ cursor:pointer; font-family:var(--font-display); font-size:15px; font-weight:700; list-style:none; }
+  details.secao > summary::-webkit-details-marker{ display:none; }
+  details.secao > summary::before{ content:'▸ '; }
+  details.secao[open] > summary::before{ content:'▾ '; }
+  details.secao[open] > summary{ margin-bottom:12px; }
+</style>
+</head>
+<body>
+<div class="wrap">
+  <div class="cabecalho">
+    <div style="display:flex; align-items:center; gap:14px;">
+    <svg width="56" height="56" viewBox="0 0 120 120" style="flex-shrink:0;">
+      <defs>
+        <linearGradient id="gIconeConsulta" x1="0" y1="120" x2="120" y2="0" gradientUnits="userSpaceOnUse">
+          <stop offset="0%" stop-color="#0a4a3e"/>
+          <stop offset="55%" stop-color="#12695a"/>
+          <stop offset="100%" stop-color="#1c8a6d"/>
+        </linearGradient>
+      </defs>
+      <rect x="0" y="0" width="120" height="120" rx="28" fill="url(#gIconeConsulta)"/>
+      <path d="M 26 94 L 50 76 L 74 54 L 90 34" stroke="#ffffff" stroke-width="4" stroke-linecap="round" stroke-dasharray="1 12" opacity="0.9" fill="none"/>
+      <circle cx="26" cy="94" r="6" fill="#ffffff" opacity="0.55"/>
+      <circle cx="50" cy="76" r="6" fill="#ffffff" opacity="0.75"/>
+      <circle cx="74" cy="54" r="6.5" fill="#ffffff" opacity="0.92"/>
+      <circle cx="91" cy="32" r="14" fill="#ffffff"/>
+      <path d="M 85 32 L 89.5 37 L 98 26" stroke="#0a4a3e" stroke-width="3.4" stroke-linecap="round" stroke-linejoin="round" fill="none"/>
+    </svg>
+    <div>
+      <h1>Rasmar<span class="versao">V2</span></h1>
+      <p class="sub">consulta pública — só leitura<span class="nomeMarcenariaInline" style="display:none;"></span></p>
+    </div>
+    </div>
+  </div>
+
+  <div id="conteudo">
+    <div class="secao">
+      <p class="tagMuted" id="statusCarregando">carregando...</p>
+    </div>
+  </div>
+
+  <footer>Rasmar V2<span class="nomeMarcenariaInline" style="display:none;"></span> · Esta página é só de consulta, não permite fazer login ou alterar nada.</footer>
+</div>
+
+<script>
+function buscarNoServidor(syncUrl, params){
+  return new Promise((resolve, reject) => {
+    const nomeCallback = 'rasmarConsultaCb_' + Date.now() + '_' + Math.floor(Math.random()*100000);
+    const script = document.createElement('script');
+    let finalizado = false;
+    const limpar = () => { delete window[nomeCallback]; script.remove(); clearTimeout(timeout); };
+    const timeout = setTimeout(() => {
+      if (finalizado) return; finalizado = true; limpar();
+      reject(new Error('tempo esgotado buscando no servidor'));
+    }, 20000);
+    window[nomeCallback] = (dados) => { if (finalizado) return; finalizado = true; limpar(); resolve(dados); };
+    script.onerror = () => { if (finalizado) return; finalizado = true; limpar(); reject(new Error('não consegui buscar no servidor')); };
+    const query = new URLSearchParams(Object.assign({ callback: nomeCallback, _: Date.now() }, params)).toString();
+    script.src = syncUrl + (syncUrl.includes('?') ? '&' : '?') + query;
+    document.body.appendChild(script);
+  });
+}
+
+// escapa texto que veio do servidor (nome de cliente/pedido/módulo, etc.)
+// antes de jogar em innerHTML — esta página é PÚBLICA (sem login), então
+// blindar aqui é ainda mais importante que nas telas internas.
+function escaparHtml(t){ return String(t==null?'':t).replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;').replace(/"/g,'&quot;').replace(/'/g,'&#39;'); }
+function formatarEm(em){ return (em || '').replace('T', ' '); }
+
+function nomeTipoEvento(t){
+  const nomes = {
+    bipagem: 'Bipagem', envio_individual: 'Envio individual', envio_modulo: 'Envio de módulo',
+    defeito_retrabalho: 'Defeito — retrabalho', defeito_descarte: 'Defeito — descarte',
+    defeito_modulo_recriacao: 'Defeito — módulo recriado', defeito_modulo_retrabalho: 'Defeito — módulo em retrabalho',
+    conclusao_modulo: 'Módulo concluído', conclusao_forcada_modulo: 'Módulo concluído (sem bipar)',
+    conclusao_pedido_macro: 'Pedido concluído', baixa_pedido: 'Baixa do pedido',
+    cadastro_manual: 'Cadastro manual', recriacao_peca: 'Peça recriada'
+  };
+  return nomes[t] || t;
+}
+
+// tempo decorrido "há Xh Ymin" — usado nos números rápidos, mais fácil de
+// ler rápido do que uma data/hora completa.
+function decorridoLegivel(desdeIso, ateIso){
+  const desde = new Date((desdeIso||'').replace(' ', 'T'));
+  const ate = ateIso ? new Date((ateIso||'').replace(' ', 'T')) : new Date();
+  if (isNaN(desde.getTime())) return '—';
+  const min = Math.max(0, (ate - desde) / 60000);
+  const dias = Math.floor(min / 1440);
+  const horas = Math.floor((min % 1440) / 60);
+  const minutos = Math.round(min % 60);
+  if (dias > 0) return dias + 'd ' + horas + 'h';
+  if (horas > 0) return horas + 'h ' + minutos + 'min';
+  return minutos + 'min';
+}
+
+// monta a barra de progresso visual (stepper) — uma bolinha por etapa
+// configurada, marcando quais esse módulo/pedido já passou.
+function renderStepper(estacoesOrdenadas, labelsAlcancados){
+  if (!estacoesOrdenadas.length) return '';
+  const idxAtual = (() => {
+    for (let i = estacoesOrdenadas.length - 1; i >= 0; i--){
+      if (labelsAlcancados.has(estacoesOrdenadas[i].label)) return i;
+    }
+    return -1;
+  })();
+  let html = '<div class="stepperWrap"><div class="stepper">';
+  estacoesOrdenadas.forEach((s, i) => {
+    const feito = i < idxAtual;
+    const atual = i === idxAtual;
+    const classe = feito ? 'feito' : (atual ? 'atual' : '');
+    html += '<div class="step ' + classe + '"><div class="bolha">' + (feito ? '✓' : (i+1)) + '</div><div class="rotulo">' + escaparHtml(s.label) + '</div></div>';
+    if (i < estacoesOrdenadas.length - 1) html += '<div class="linhaStep ' + (i < idxAtual ? 'feito' : '') + '"></div>';
+  });
+  html += '</div></div>';
+  return html;
+}
+
+async function iniciar(){
+  const params = new URLSearchParams(window.location.search);
+  const syncUrl = params.get('servidor');
+  const tipo = params.get('tipo'); // 'modulo' ou 'pedido'
+  const codigo = params.get('codigo');
+  const el = document.getElementById('conteudo');
+
+  if (!syncUrl || !tipo || !codigo){
+    el.innerHTML = '<div class="secao"><p class="tagMuted">Link incompleto — falta informação pra saber o que consultar. Escaneie a etiqueta de novo.</p></div>';
+    return;
+  }
+
+  try {
+    const [estado, movs] = await Promise.all([
+      buscarNoServidor(syncUrl, {}),
+      buscarNoServidor(syncUrl, { acao: 'movimentos' })
+    ]);
+    const projetos = Array.isArray(estado.projetos) ? estado.projetos : [];
+    const movimentos = Array.isArray(movs.movimentos) ? movs.movimentos : [];
+    const estacoesConfig = Array.isArray(estado.estacoes) ? estado.estacoes : [];
+
+    if (typeof estado.nomeMarcenaria === 'string' && estado.nomeMarcenaria){
+      document.querySelectorAll('.nomeMarcenariaInline').forEach(el => {
+        el.textContent = ' · ' + estado.nomeMarcenaria;
+        el.style.display = '';
+      });
+    }
+
+    if (tipo === 'modulo'){
+      // código de etiqueta de módulo é "CODIGOPEDIDO-M<id>"
+      const i = codigo.lastIndexOf('-M');
+      const codigoPedido = i >= 0 ? codigo.slice(0, i) : codigo;
+      const moduloId = i >= 0 ? codigo.slice(i+2) : '';
+      const pr = projetos.find(p => p.codigo === codigoPedido);
+      const mod = pr ? pr.modulos.find(m => String(m.id) === moduloId) : null;
+      if (!pr || !mod){
+        el.innerHTML = '<div class="secao"><p class="tagMuted">Módulo não encontrado (pode já ter sido excluído ou o pedido baixado).</p></div>';
+        return;
+      }
+      const eventos = movimentos.filter(m => String(m.moduloId) === String(mod.id) && m.clienteCodigo === pr.codigo)
+        .sort((a,b) => a.em.localeCompare(b.em));
+      const concluido = !!mod.finalCompleta;
+      const status = concluido ? '<span class="statusGrande pronto">✅ Concluído</span>' : '<span class="statusGrande andamento">🔵 Em andamento</span>';
+
+      const labelsAlcancados = new Set(eventos.filter(ev => ev.tipo === 'bipagem' || ev.tipo === 'conclusao_modulo' || ev.tipo === 'conclusao_forcada_modulo').map(ev => ev.detalhe));
+      const stepperHtml = renderStepper(estacoesConfig, labelsAlcancados);
+
+      const primeiro = eventos[0], ultimo = eventos[eventos.length-1];
+      const statsHtml = '<div class="statsRapidas">' +
+        '<div class="statCard"><div class="numero">' + mod.pecas.length + '</div><div class="rotulo">peça(s)</div></div>' +
+        (primeiro ? '<div class="statCard"><div class="numero">' + decorridoLegivel(primeiro.em, concluido ? ultimo.em : null) + '</div><div class="rotulo">' + (concluido ? 'levou no total' : 'em andamento há') + '</div></div>' : '') +
+        (ultimo ? '<div class="statCard"><div class="numero">' + decorridoLegivel(ultimo.em) + '</div><div class="rotulo">desde a última atividade</div></div>' : '') +
+      '</div>';
+
+      el.innerHTML =
+        '<div class="secao cartaoStatus">' +
+          '<p class="rotuloTipo">Módulo</p>' +
+          '<p class="tituloItem">#' + escaparHtml(mod.id) + ' — ' + escaparHtml(mod.nome||'') + '</p>' +
+          '<p class="subInfo">Pedido ' + escaparHtml(pr.codigo) + ' · ' + escaparHtml(pr.cliente||'') + ' · ' + escaparHtml(pr.projeto||'') + '</p>' +
+          status +
+        '</div>' +
+        '<div class="secao">' + stepperHtml + '</div>' +
+        '<div class="secao">' + statsHtml + '</div>' +
+        '<details class="secao"><summary>Histórico completo (' + eventos.length + ' evento(s))</summary>' + renderEventos(eventos) + '</details>';
+    } else {
+      const pr = projetos.find(p => p.codigo === codigo);
+      if (!pr){
+        el.innerHTML = '<div class="secao"><p class="tagMuted">Pedido não encontrado (pode já ter sido apagado).</p></div>';
+        return;
+      }
+      const eventos = movimentos.filter(m => m.clienteCodigo === pr.codigo).sort((a,b) => a.em.localeCompare(b.em));
+      const status = pr.baixado ? '<span class="statusGrande pronto">📦 Entregue</span>' : '<span class="statusGrande andamento">🔵 Em andamento</span>';
+
+      // pro pedido, o "step" concluído considera a etapa mais avançada
+      // entre TODOS os módulos dele — dá o retrato geral do pedido. Além
+      // disso, conclusões de etapas de PROJETO INTEIRO (ex: Entrega,
+      // Instalação) não têm moduloId — são registradas direto no pedido —
+      // então entram à parte, olhando só o clienteCodigo.
+      const labelsAlcancados = new Set();
+      pr.modulos.forEach(mod => {
+        movimentos.filter(m => String(m.moduloId) === String(mod.id) && m.clienteCodigo === pr.codigo && (m.tipo === 'bipagem' || m.tipo === 'conclusao_modulo' || m.tipo === 'conclusao_forcada_modulo'))
+          .forEach(ev => labelsAlcancados.add(ev.detalhe));
+      });
+      eventos.filter(m => !m.moduloId && (m.tipo === 'conclusao_modulo' || m.tipo === 'conclusao_forcada_modulo'))
+        .forEach(ev => labelsAlcancados.add(ev.detalhe));
+      const stepperHtml = renderStepper(estacoesConfig, labelsAlcancados);
+
+      const primeiro = eventos[0], ultimo = eventos[eventos.length-1];
+      const totalPecas = pr.modulos.reduce((a,m) => a + m.pecas.length, 0);
+      const statsHtml = '<div class="statsRapidas">' +
+        '<div class="statCard"><div class="numero">' + pr.modulos.length + '</div><div class="rotulo">módulo(s)</div></div>' +
+        '<div class="statCard"><div class="numero">' + totalPecas + '</div><div class="rotulo">peça(s)</div></div>' +
+        (primeiro ? '<div class="statCard"><div class="numero">' + decorridoLegivel(primeiro.em, pr.baixado ? ultimo.em : null) + '</div><div class="rotulo">' + (pr.baixado ? 'levou no total' : 'em andamento há') + '</div></div>' : '') +
+      '</div>';
+
+      el.innerHTML =
+        '<div class="secao cartaoStatus">' +
+          '<p class="rotuloTipo">Pedido</p>' +
+          '<p class="tituloItem">' + escaparHtml(pr.codigo) + '</p>' +
+          '<p class="subInfo">' + escaparHtml(pr.cliente||'') + ' · ' + escaparHtml(pr.projeto||'') + (pr.baixado ? (' · entregue em ' + escaparHtml(formatarEm(pr.baixadoEm))) : '') + '</p>' +
+          status +
+        '</div>' +
+        '<div class="secao">' + stepperHtml + '</div>' +
+        '<div class="secao">' + statsHtml + '</div>' +
+        '<details class="secao"><summary>Histórico completo (' + eventos.length + ' evento(s))</summary>' + renderEventos(eventos) + '</details>';
+    }
+  } catch (err) {
+    el.innerHTML = '<div class="secao"><p class="tagMuted">Não consegui buscar os dados agora (' + err.message + '). Tente de novo em alguns segundos.</p></div>';
+  }
+}
+
+function renderEventos(eventos){
+  if (!eventos.length) return '<p class="tagMuted">nenhum evento registrado ainda</p>';
+  return eventos.slice().reverse().map(ev =>
+    '<div class="linhaEvento"><span class="quando">' + escaparHtml(formatarEm(ev.em)) + '</span><span><span class="tipo">' + escaparHtml(nomeTipoEvento(ev.tipo)) + '</span>' + (ev.detalhe ? ' — ' + escaparHtml(ev.detalhe) : '') + (ev.pecaCodigo ? ' (' + escaparHtml(ev.pecaCodigo) + ')' : '') + '</span></div>'
+  ).join('');
+}
+
+iniciar();
+</script>
+</body>
+</html>
